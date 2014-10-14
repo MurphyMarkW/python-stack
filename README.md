@@ -5,6 +5,8 @@ A minimalistic call stack system for python using decorators.
 
 Example:
 ```
+  from stack import stack
+
   @stack('a')
   @stack('b')
   def base(s): pass
