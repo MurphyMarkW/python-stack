@@ -13,7 +13,6 @@ class layer(object):
   def __call__(self,*args,**kwargs):
     stack._stackmeta__LOCALS.called.append(self)
     try: return self.func(*args,**kwargs)
-    except Exception: raise
     finally: stack._stackmeta__LOCALS.called.pop()
 
 class stackmeta(type):
