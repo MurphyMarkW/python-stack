@@ -11,29 +11,29 @@ class layer(object):
     self.next = next
 
   def __call__(self,*args,**kwargs):
-    '''
-    Injects the next layer.
-    Calls the function.
-    '''
-    stack._stackmeta__TSTORE.layers.append(self)
-    retval = self.func(*args,**kwargs)
-    stack._stackmeta__TSTORE.layers.pop()
-    return retval # TODO Wrap in a finally?
+    stack._stackmeta__LOCALS.called.append(self)
+    try: return self.func(*args,**kwargs)
+    except Exception: raise
+    finally: stack._stackmeta__LOCALS.called.pop()
 
 class stackmeta(type):
   '''
   Stack metaclass - gives some nice syntactical sugar.
   '''
-  __STACKS = collections.defaultdict(list)
-  __TSTORE = threading.local()
-  __TSTORE.layers = collections.deque()
+  __STACKS = dict()
+  __LOCALS = threading.local()
+  __LOCALS.called = collections.deque()
 
   def __getitem__(cls,key):
     return cls.__STACKS[key]
 
+  def __setitem__(cls,key,val):
+    cls.__STACKS[key] = val
+
   @property
   def next(cls):
-    return stackmeta.__TSTORE.layers[-1].next
+    try: return stackmeta.__LOCALS.called[-1].next
+    except IndexError: return None
 
 class stack(object):
   '''
@@ -41,14 +41,12 @@ class stack(object):
   '''
   __metaclass__ = stackmeta
 
-  def __init__(self,*stacks): self.stacks = stacks
+  def __init__(self,stack): self.stack = stack
 
   def __call__(self,func):
-    for s in self.stacks:
-
-      # Wire up the stack as it's populated.
-      try: stack[s].append(layer(func,stack[s][-1]))
-      except IndexError: stack[s].append(layer(func))
-
-    # Return the original function.
+    try: stack[self.stack] = layer(func,next=stack[self.stack])
+    except KeyError: stack[self.stack] = layer(func)
     return func
+
+  def next(self,*args,**kwargs):
+    return stack[self.stack](*args,**kwargs)

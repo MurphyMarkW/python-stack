@@ -5,27 +5,28 @@ A minimalistic call stack system for python using decorators.
 
 Example:
 ```
-  @stack('a','b')
+  @stack('a')
+  @stack('b')
   def base(s): pass
 
   @stack('a')
-  @stack('a')
-  def cats(s):
-    print 'cat: %s' % s
+  def cat(s):
+    print 'meow: %s' % s
     stack.next(s)
 
   @stack('b')
-  @stack('b','c')
-  def dogs(s):
-    print 'dog: %s' % s
-    stack['a'].next(s)
+  @stack('b')
+  def dog(s):
+    print 'woof: %s' % s
+    stack('a').next(s)
     stack.next(s)
 
-  stack['b'].next('OMGHAI')
-  dog: OMGHAI
-  cat: OMGHAI
-  cat: OMGHAI
-  dog: OMGHAI
-  cat: OMGHAI
-  cat: OMGHAI
+  stack('a').next('HAI')
+  meow: HAI
+
+  stack('b').next('BAI')
+  woof: BAI
+  meow: BAI
+  woof: BAI
+  meow: BAI
 ```
