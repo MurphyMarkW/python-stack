@@ -17,7 +17,6 @@ Example:
     stack.next(s)
 
   @stack('b')
-  @stack('b')
   def dog(s):
     print 'woof: %s' % s
     stack('a').next(s)
@@ -27,8 +26,6 @@ Example:
   meow: HAI
 
   stack('b').next('BAI')
-  woof: BAI
-  meow: BAI
   woof: BAI
   meow: BAI
 ```
